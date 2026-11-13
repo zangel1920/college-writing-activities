@@ -4,166 +4,217 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Academic vs. Professional Writing: Sorting Activity</title>
+<title>Academic and Professional Writing Sorting Activity</title>
+
 <style>
+:root {
+  --navy: #003d78;
+  --cream: #fcf2e7;
+  --gold: #ffc94f;
+  --ink: #172b42;
+  --line: #a2b4c7;
+  --pale: #f4f8fc;
+}
+
 * { box-sizing: border-box; }
 
 body {
   margin: 0;
-  padding: 20px;
+  padding: 12px;
   font-family: Arial, Helvetica, sans-serif;
-  line-height: 1.5;
-  color: #172b42;
-  background: #fff;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--ink);
+  background: white;
 }
 
-main { max-width: 1150px; margin: auto; }
-h1 { font-size: 1.65rem; margin-bottom: 10px; }
-h2 { font-size: 1.15rem; margin: 0 0 12px; }
-p { margin: 8px 0 14px; }
+main {
+  max-width: 1100px;
+  margin: auto;
+}
 
-.instructions { max-width: 950px; margin-bottom: 22px; }
+h1 {
+  color: var(--navy);
+  font-size: 1.25rem;
+  margin: 0 0 5px;
+}
+
+.intro {
+  margin: 0 0 12px;
+}
 
 .board {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
   gap: 18px;
   align-items: start;
 }
 
-.pool-panel {
-  padding: 16px;
-  background: #f5f8fc;
-  border: 1px solid #bdcde0;
-  border-radius: 9px;
+h2 {
+  font-size: 1rem;
+  color: var(--navy);
+  margin: 0 0 8px;
 }
 
-.card-list {
+.pool {
   display: grid;
-  gap: 9px;
-  min-height: 65px;
+  gap: 4px;
+  min-height: 45px;
   align-content: start;
 }
 
 .card {
-  background: #fff;
-  border: 1px solid #9bb3cd;
-  border-radius: 7px;
-  padding: 11px;
+  background: white;
+  border-bottom: 1px solid var(--line);
+  padding: 6px 4px;
+  cursor: grab;
 }
 
-.card[draggable="true"] { cursor: grab; }
-.card.dragging { opacity: .45; }
+.card.dragging {
+  opacity: .45;
+}
 
-.card-top {
+.card-main {
   display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
 }
 
 .card-text {
   flex: 1;
-  font-size: .94rem;
+  min-width: 0;
 }
 
-.move-button {
+.move-btn {
   flex-shrink: 0;
-  background: #e8eff8;
-  border: 1px solid #819bb9;
-  color: #172b42;
-  border-radius: 5px;
-  padding: 5px 9px;
-  font-size: .82rem;
+  min-height: 30px;
+  min-width: 48px;
+  padding: 4px 7px;
+  border: 1px solid var(--navy);
+  border-radius: 4px;
+  background: white;
+  color: var(--navy);
+  font-weight: bold;
   cursor: pointer;
+}
+
+.move-btn:hover,
+.move-btn[aria-expanded="true"] {
+  background: var(--navy);
+  color: white;
 }
 
 .move-menu {
-  margin-top: 10px;
-  padding: 10px;
-  border: 1px solid #bdcde0;
-  border-radius: 6px;
-  background: #f8fafc;
+  margin-top: 7px;
+  padding: 7px;
+  background: var(--cream);
+  border-radius: 5px;
 }
 
-.move-menu p { font-size: .85rem; margin: 0 0 8px; }
+.move-menu[hidden] {
+  display: none;
+}
+
+.move-menu p {
+  margin: 0 0 5px;
+  font-weight: bold;
+}
 
 .move-menu button {
-  margin: 3px;
-  padding: 7px;
+  min-height: 30px;
+  margin: 2px 4px 2px 0;
+  padding: 4px 7px;
+  border: 1px solid var(--navy);
+  border-radius: 4px;
   background: white;
-  color: #172b42;
-  border: 1px solid #819bb9;
-  border-radius: 5px;
+  color: var(--navy);
   cursor: pointer;
 }
 
-.zones { display: grid; gap: 12px; }
-
-.zone {
-  padding: 14px;
-  min-height: 150px;
-  border: 2px dashed #819bb9;
-  border-radius: 9px;
-  background: #f5f8fc;
+.categories {
+  display: grid;
+  gap: 9px;
 }
 
-.zone.over {
-  background: #e5f0ff;
-  border-color: #174c87;
+.category {
+  background: var(--pale);
+  border-left: 4px solid var(--navy);
+  border-radius: 3px;
+  padding: 9px 11px;
+  min-height: 88px;
 }
 
-.zone h2 { margin-bottom: 3px; }
-.zone-description {
-  color: #435367;
+.category h2 {
+  margin-bottom: 3px;
+}
+
+.category p {
+  margin: 0 0 5px;
   font-size: .88rem;
-  margin-bottom: 12px;
+}
+
+.category.over,
+.pool.over {
+  background: var(--cream);
+  outline: 2px solid var(--navy);
+  outline-offset: -2px;
+}
+
+.category .card {
+  padding: 5px 3px;
+  background: transparent;
+}
+
+.category .card:last-child {
+  border-bottom: 0;
 }
 
 .feedback {
-  margin-top: 9px;
-  padding: 9px;
-  font-size: .9rem;
-  border-radius: 5px;
+  margin-top: 5px;
+  font-size: .88rem;
+  padding: 5px 7px;
+  border-radius: 3px;
+}
+
+.feedback:empty {
+  display: none;
 }
 
 .correct {
-  background: #e7f4eb;
-  border-left: 4px solid #237544;
+  background: #e5f3e8;
+  border-left: 3px solid #237544;
 }
 
 .incorrect {
-  background: #fff1e2;
-  border-left: 4px solid #a65b08;
+  background: #fff0df;
+  border-left: 3px solid #a65b08;
 }
 
-.actions { margin: 22px 0 15px; }
+.actions {
+  margin-top: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
 
-.action-button {
-  padding: 12px 18px;
-  border: 0;
-  border-radius: 6px;
-  font-size: 1rem;
+.action {
+  min-height: 36px;
+  padding: 7px 14px;
+  border-radius: 5px;
   font-weight: bold;
   cursor: pointer;
-  margin: 0 8px 8px 0;
 }
 
-#check { background: #174c87; color: white; }
-#reset { background: #e8edf3; color: #172b42; }
-
-#results {
-  padding: 15px;
-  border: 2px solid #174c87;
-  border-radius: 8px;
+#check {
+  color: white;
+  background: var(--navy);
+  border: 2px solid var(--navy);
 }
 
-#results:empty { display: none; }
-
-.note {
-  margin-top: 18px;
-  font-size: .88rem;
-  color: #435367;
+#reset {
+  color: var(--navy);
+  background: var(--gold);
+  border: 2px solid var(--navy);
 }
 
 button:focus-visible {
@@ -171,82 +222,99 @@ button:focus-visible {
   outline-offset: 3px;
 }
 
-@media (max-width: 750px) {
-  .board { grid-template-columns: 1fr; }
+#results:not(:empty) {
+  margin-top: 12px;
+  padding: 10px;
+  background: var(--cream);
+  border-left: 4px solid var(--navy);
+}
+
+#results h2 {
+  margin: 0 0 4px;
+}
+
+#results p {
+  margin: 4px 0;
+}
+
+.note {
+  font-size: .85rem;
+  margin: 10px 0 0;
+}
+
+@media (max-width: 540px) {
+  .board {
+    grid-template-columns: 1fr;
+  }
+
+  body {
+    padding: 10px;
+  }
 }
 </style>
 </head>
 
 <body>
 <main>
-<h1>Academic or Professional Writing?</h1>
 
-<div class="instructions">
-  <p>
-    Practice identifying writing expectations in academic and
-    professional settings. Sort each statement into
-    <strong>Academic Writing</strong>,
-    <strong>Professional Writing</strong>, or
-    <strong>Both</strong>.
-  </p>
+<h1>Academic vs. Professional Writing</h1>
 
-  <p>
-    Drag statements from the list into the correct category.
-    You can also select <strong>Move</strong> on any statement
-    to choose its destination without dragging.
-    Select <strong>Check Answers</strong> for feedback.
-    You may try again as often as you like.
-  </p>
-</div>
+<p class="intro">
+  Drag each statement into the correct category, or use
+  <strong>Move</strong>. Select <strong>Check Answers</strong>
+  when finished.
+</p>
 
 <div class="board">
 
-  <section class="pool-panel" aria-labelledby="pool-heading">
+  <section aria-labelledby="pool-heading">
     <h2 id="pool-heading">Statements to Sort</h2>
-    <div id="pool" class="card-list" data-zone="pool"
-         aria-label="Unsorted statements"></div>
+    <div
+      id="pool"
+      class="pool"
+      data-zone="pool"
+      aria-label="Unsorted statements">
+    </div>
   </section>
 
-  <div class="zones" aria-label="Writing categories">
+  <div class="categories" aria-label="Sorting categories">
 
-    <section class="zone" data-zone="academic"
-             aria-labelledby="academic-heading">
+    <section
+      class="category"
+      data-zone="academic"
+      aria-labelledby="academic-heading">
       <h2 id="academic-heading">Academic Writing</h2>
-      <p class="zone-description">
-        College assignments and scholarly work
-      </p>
-      <div id="academic" class="card-list"
-           data-zone="academic"></div>
+      <p>College assignments and scholarly work</p>
+      <div id="academic"></div>
     </section>
 
-    <section class="zone" data-zone="professional"
-             aria-labelledby="professional-heading">
+    <section
+      class="category"
+      data-zone="professional"
+      aria-labelledby="professional-heading">
       <h2 id="professional-heading">Professional Writing</h2>
-      <p class="zone-description">
-        Workplace communication and tasks
-      </p>
-      <div id="professional" class="card-list"
-           data-zone="professional"></div>
+      <p>Workplace communication and tasks</p>
+      <div id="professional"></div>
     </section>
 
-    <section class="zone" data-zone="both"
-             aria-labelledby="both-heading">
+    <section
+      class="category"
+      data-zone="both"
+      aria-labelledby="both-heading">
       <h2 id="both-heading">Both</h2>
-      <p class="zone-description">
-        Skills used in academic and workplace settings
-      </p>
-      <div id="both" class="card-list"
-           data-zone="both"></div>
+      <p>Skills used in either setting</p>
+      <div id="both"></div>
     </section>
 
   </div>
 </div>
 
 <div class="actions">
-  <button type="button" class="action-button" id="check">
+  <button class="action" id="check" type="button">
     Check Answers
   </button>
-  <button type="button" class="action-button" id="reset">
+
+  <button class="action" id="reset" type="button">
     Try Again
   </button>
 </div>
@@ -254,8 +322,7 @@ button:focus-visible {
 <div id="results" role="status" aria-live="polite"></div>
 
 <p class="note">
-  This activity is ungraded. Your answers are not submitted
-  to your instructor or stored online.
+  Ungraded practice. Answers are not saved or submitted.
 </p>
 
 </main>
@@ -267,7 +334,7 @@ const statements = [
   {
     text: "Uses scholarly research to support arguments in a college paper.",
     answer: "academic",
-    why: "Academic writing often uses scholarly research to support claims."
+    why: "Scholarly research commonly supports academic arguments."
   },
   {
     text: "Follows APA or MLA citation guidelines when required.",
@@ -277,32 +344,32 @@ const statements = [
   {
     text: "Includes in-text citations and a reference or works cited list.",
     answer: "academic",
-    why: "Academic papers commonly cite research and provide source lists."
+    why: "Academic papers commonly document research sources."
   },
   {
     text: "Sends a memo explaining a new workplace procedure.",
     answer: "professional",
-    why: "Memos are a common form of workplace communication."
+    why: "Memos are common workplace communications."
   },
   {
     text: "Clearly identifies an action a supervisor needs to approve.",
     answer: "professional",
-    why: "Professional writing often supports workplace decisions and actions."
+    why: "Professional writing often supports workplace decisions."
   },
   {
     text: "Follows an organization's standards for business correspondence.",
     answer: "professional",
-    why: "Professional writing follows workplace communication conventions."
+    why: "Workplace writing follows organizational conventions."
   },
   {
     text: "Uses clear, organized sentences to communicate ideas.",
     answer: "both",
-    why: "Clarity and organization are important in both settings."
+    why: "Clarity and organization matter in both settings."
   },
   {
     text: "Adjusts language and tone to suit the intended audience.",
     answer: "both",
-    why: "Both academic and professional writing require audience awareness."
+    why: "Both settings require audience awareness."
   },
   {
     text: "Reviews information for accuracy and corrects writing errors.",
@@ -320,7 +387,6 @@ const names = {
 
 const pool = document.getElementById("pool");
 const results = document.getElementById("results");
-let draggedId = null;
 
 function clearFeedback(card) {
   const feedback = card.querySelector(".feedback");
@@ -339,8 +405,8 @@ function moveCard(card, destinationName) {
   const menu = card.querySelector(".move-menu");
   menu.hidden = true;
 
-  const button = card.querySelector(".move-button");
-  button.setAttribute("aria-expanded", "false");
+  card.querySelector(".move-btn")
+    .setAttribute("aria-expanded", "false");
 }
 
 function createCards() {
@@ -350,8 +416,8 @@ function createCards() {
     card.id = "card-" + index;
     card.draggable = true;
 
-    const top = document.createElement("div");
-    top.className = "card-top";
+    const row = document.createElement("div");
+    row.className = "card-main";
 
     const text = document.createElement("span");
     text.className = "card-text";
@@ -359,24 +425,21 @@ function createCards() {
 
     const moveButton = document.createElement("button");
     moveButton.type = "button";
-    moveButton.className = "move-button";
+    moveButton.className = "move-btn";
     moveButton.textContent = "Move";
-    moveButton.setAttribute("aria-expanded", "false");
     moveButton.setAttribute(
       "aria-label",
       "Move statement " + (index + 1)
     );
-
-    top.append(text, moveButton);
-    card.appendChild(top);
+    moveButton.setAttribute("aria-expanded", "false");
 
     const menu = document.createElement("div");
     menu.className = "move-menu";
     menu.hidden = true;
 
-    const menuPrompt = document.createElement("p");
-    menuPrompt.textContent = "Move this statement to:";
-    menu.appendChild(menuPrompt);
+    const prompt = document.createElement("p");
+    prompt.textContent = "Move to:";
+    menu.appendChild(prompt);
 
     Object.entries(names).forEach(([key, label]) => {
       const option = document.createElement("button");
@@ -392,34 +455,42 @@ function createCards() {
     });
 
     moveButton.addEventListener("click", () => {
-      menu.hidden = !menu.hidden;
+      const opening = menu.hidden;
+      menu.hidden = !opening;
       moveButton.setAttribute(
         "aria-expanded",
-        String(!menu.hidden)
+        String(opening)
       );
-      if (!menu.hidden) {
+
+      if (opening) {
         menu.querySelector("button").focus();
       }
     });
 
-    card.appendChild(menu);
+    menu.addEventListener("keydown", event => {
+      if (event.key === "Escape") {
+        menu.hidden = true;
+        moveButton.setAttribute("aria-expanded", "false");
+        moveButton.focus();
+      }
+    });
 
     const feedback = document.createElement("div");
     feedback.className = "feedback";
-    card.appendChild(feedback);
+
+    row.append(text, moveButton);
+    card.append(row, menu, feedback);
 
     card.addEventListener("dragstart", event => {
-      draggedId = card.id;
       event.dataTransfer.setData("text/plain", card.id);
       event.dataTransfer.effectAllowed = "move";
       card.classList.add("dragging");
     });
 
     card.addEventListener("dragend", () => {
-      draggedId = null;
       card.classList.remove("dragging");
-      document.querySelectorAll(".over").forEach(zone => {
-        zone.classList.remove("over");
+      document.querySelectorAll(".over").forEach(el => {
+        el.classList.remove("over");
       });
     });
 
@@ -442,10 +513,13 @@ document.querySelectorAll("[data-zone]").forEach(zone => {
 
   zone.addEventListener("drop", event => {
     event.preventDefault();
-    zone.classList.remove("over");
+    event.stopPropagation();
 
-    const id = event.dataTransfer.getData("text/plain")
-      || draggedId;
+    document.querySelectorAll(".over").forEach(el => {
+      el.classList.remove("over");
+    });
+
+    const id = event.dataTransfer.getData("text/plain");
     const card = document.getElementById(id);
 
     if (card) moveCard(card, zone.dataset.zone);
@@ -469,12 +543,11 @@ document.getElementById("check").addEventListener("click", () => {
       feedback.textContent = "Correct. " + item.why;
     } else if (selected === "pool") {
       feedback.className = "feedback incorrect";
-      feedback.textContent =
-        "Not sorted yet. Move this statement into a category.";
+      feedback.textContent = "Not sorted yet.";
     } else {
       feedback.className = "feedback incorrect";
       feedback.textContent =
-        "Not quite. The best answer is " +
+        "Not quite. Best answer: " +
         names[item.answer] + ". " + item.why;
     }
   });
@@ -486,16 +559,15 @@ document.getElementById("check").addEventListener("click", () => {
 
   const summary = document.createElement("p");
   summary.textContent =
-    "You sorted " + sorted + " of 9 statements and answered " +
-    correct + " correctly.";
+    "Sorted: " + sorted + " of 9. Correct: " +
+    correct + " of 9.";
 
   const message = document.createElement("p");
   message.textContent = correct === statements.length
-    ? "All correct! You understand the differences and similarities."
-    : "Review the feedback on each card, then try again.";
+    ? "All correct!"
+    : "Review the feedback and adjust your answers.";
 
   results.append(heading, summary, message);
-  results.scrollIntoView({ block: "nearest" });
 });
 
 document.getElementById("reset").addEventListener("click", () => {
@@ -505,7 +577,6 @@ document.getElementById("reset").addEventListener("click", () => {
   });
 
   results.replaceChildren();
-  pool.scrollIntoView({ block: "start" });
 });
 
 createCards();
