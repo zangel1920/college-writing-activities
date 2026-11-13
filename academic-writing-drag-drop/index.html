@@ -1,1 +1,412 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Academic vs. Professional Writing: Drag and Drop</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.5;
+  color: #172b42;
+  background: #fff;
+}
+main { max-width: 1050px; margin: auto; }
+h1 { font-size: 1.6rem; }
+h2 { font-size: 1.15rem; margin-top: 24px; }
+p { max-width: 850px; }
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+.zone {
+  min-height: 180px;
+  padding: 12px;
+  border: 2px dashed #819bb9;
+  border-radius: 9px;
+  background: #f5f8fc;
+}
+.zone.over {
+  border-color: #174c87;
+  background: #e6f0ff;
+}
+.zone h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+.zone p {
+  font-size: .85rem;
+  margin: 5px 0 12px;
+}
+.card-list { min-height: 65px; }
+.pool {
+  padding: 14px;
+  border: 2px solid #cbd5e1;
+  border-radius: 9px;
+  background: #f8fafc;
+}
+.cards {
+  display: grid;
+  gap: 10px;
+}
+.card {
+  padding: 12px;
+  background: #fff;
+  border: 1px solid #aabdd2;
+  border-radius: 7px;
+}
+.card[draggable="true"] { cursor: grab; }
+.card.dragging { opacity: .45; }
+.card strong { display: block; margin-bottom: 8px; }
+.card label {
+  display: block;
+  font-size: .85rem;
+  margin-bottom: 4px;
+}
+.card select {
+  width: 100%;
+  max-width: 260px;
+  padding: 8px;
+  font-size: 1rem;
+  color: #172b42;
+  background: white;
+  border: 1px solid #819bb9;
+  border-radius: 5px;
+}
+.card select:focus-visible,
+button:focus-visible {
+  outline: 3px solid #a65b08;
+  outline-offset: 3px;
+}
+.feedback {
+  margin-top: 9px;
+  padding: 9px;
+  border-radius: 5px;
+}
+.correct {
+  background: #e7f4eb;
+  border-left: 4px solid #237544;
+}
+.incorrect {
+  background: #fff1e2;
+  border-left: 4px solid #a65b08;
+}
+.actions { margin: 20px 0; }
+button {
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 0 8px 8px 0;
+}
+#check { background: #174c87; color: #fff; }
+#reset { background: #e8edf3; color: #172b42; }
+#results {
+  padding: 15px;
+  border: 2px solid #174c87;
+  border-radius: 8px;
+}
+#results:empty { display: none; }
+.note { font-size: .9rem; color: #435367; }
+
+@media (max-width: 700px) {
+  .board { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+
+<body>
+<main>
+<h1>Academic or Professional Writing?</h1>
+
+<p>
+Sort the nine statements into <strong>Academic Writing</strong>,
+<strong>Professional Writing</strong>, or <strong>Both</strong>.
+Drag each card into a category, or use its dropdown menu.
+</p>
+
+<p>
+When you finish, select <strong>Check Answers</strong> to receive
+feedback. You can try again as often as you like.
+</p>
+
+<section aria-labelledby="unsorted-heading" class="pool">
+  <h2 id="unsorted-heading">Statements to Sort</h2>
+  <div id="pool" class="cards card-list"
+       data-zone="pool"
+       aria-label="Unsorted statements"></div>
+</section>
+
+<div class="board" aria-label="Sorting categories">
+  <section class="zone" data-zone="academic"
+           aria-labelledby="academic-heading">
+    <h2 id="academic-heading">Academic Writing</h2>
+    <p>College assignments and scholarly work</p>
+    <div id="academic" class="cards card-list"
+         data-zone="academic"></div>
+  </section>
+
+  <section class="zone" data-zone="professional"
+           aria-labelledby="professional-heading">
+    <h2 id="professional-heading">Professional Writing</h2>
+    <p>Workplace communication and tasks</p>
+    <div id="professional" class="cards card-list"
+         data-zone="professional"></div>
+  </section>
+
+  <section class="zone" data-zone="both"
+           aria-labelledby="both-heading">
+    <h2 id="both-heading">Both</h2>
+    <p>Skills used in academic and workplace settings</p>
+    <div id="both" class="cards card-list"
+         data-zone="both"></div>
+  </section>
+</div>
+
+<div class="actions">
+  <button type="button" id="check">Check Answers</button>
+  <button type="button" id="reset">Try Again</button>
+</div>
+
+<div id="results" role="status" aria-live="polite"></div>
+
+<p class="note">
+This activity is ungraded. Your answers are not submitted
+to your instructor or stored online.
+</p>
+</main>
+
+<script>
+"use strict";
+
+const statements = [
+  {
+    text: "Uses scholarly research to support arguments in a college paper.",
+    answer: "academic",
+    why: "Academic writing often uses scholarly research to support claims."
+  },
+  {
+    text: "Follows APA or MLA citation guidelines when required.",
+    answer: "academic",
+    why: "APA and MLA are common academic citation styles."
+  },
+  {
+    text: "Includes in-text citations and a reference or works cited list.",
+    answer: "academic",
+    why: "Academic papers commonly cite research and provide source lists."
+  },
+  {
+    text: "Sends a memo explaining a new workplace procedure.",
+    answer: "professional",
+    why: "Memos are a common form of workplace communication."
+  },
+  {
+    text: "Clearly identifies an action a supervisor needs to approve.",
+    answer: "professional",
+    why: "Professional writing often supports workplace decisions and actions."
+  },
+  {
+    text: "Follows an organization's standards for business correspondence.",
+    answer: "professional",
+    why: "Professional writing follows workplace communication conventions."
+  },
+  {
+    text: "Uses clear, organized sentences to communicate ideas.",
+    answer: "both",
+    why: "Clarity and organization are important in both settings."
+  },
+  {
+    text: "Adjusts language and tone to suit the intended audience.",
+    answer: "both",
+    why: "Both academic and professional writing require audience awareness."
+  },
+  {
+    text: "Reviews information for accuracy and corrects writing errors.",
+    answer: "both",
+    why: "Accuracy and proofreading matter in both settings."
+  }
+];
+
+const names = {
+  academic: "Academic Writing",
+  professional: "Professional Writing",
+  both: "Both",
+  pool: "Not sorted"
+};
+
+const pool = document.getElementById("pool");
+const results = document.getElementById("results");
+let draggedId = null;
+
+function createCards() {
+  statements.forEach((item, index) => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.id = "card-" + index;
+    card.draggable = true;
+
+    const text = document.createElement("strong");
+    text.textContent = (index + 1) + ". " + item.text;
+    card.appendChild(text);
+
+    const label = document.createElement("label");
+    label.htmlFor = "select-" + index;
+    label.textContent = "Choose a category:";
+    card.appendChild(label);
+
+    const select = document.createElement("select");
+    select.id = "select-" + index;
+
+    Object.entries(names).forEach(([value, name]) => {
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = name;
+      select.appendChild(option);
+    });
+
+    select.value = "pool";
+
+    select.addEventListener("change", () => {
+      moveCard(card, select.value);
+    });
+
+    card.appendChild(select);
+
+    const feedback = document.createElement("div");
+    feedback.id = "feedback-" + index;
+    feedback.setAttribute("aria-live", "polite");
+    card.appendChild(feedback);
+
+    card.addEventListener("dragstart", event => {
+      draggedId = card.id;
+      event.dataTransfer.setData("text/plain", card.id);
+      event.dataTransfer.effectAllowed = "move";
+      card.classList.add("dragging");
+    });
+
+    card.addEventListener("dragend", () => {
+      draggedId = null;
+      card.classList.remove("dragging");
+      document.querySelectorAll(".over").forEach(zone => {
+        zone.classList.remove("over");
+      });
+    });
+
+    pool.appendChild(card);
+  });
+}
+
+function moveCard(card, zoneName) {
+  const destination = document.getElementById(zoneName);
+  if (!destination) return;
+
+  destination.appendChild(card);
+  card.querySelector("select").value = zoneName;
+
+  const feedback = card.querySelector("[id^='feedback-']");
+  feedback.textContent = "";
+  feedback.className = "";
+
+  results.replaceChildren();
+}
+
+document.querySelectorAll("[data-zone]").forEach(zone => {
+  zone.addEventListener("dragover", event => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+    zone.classList.add("over");
+  });
+
+  zone.addEventListener("dragleave", event => {
+    if (!zone.contains(event.relatedTarget)) {
+      zone.classList.remove("over");
+    }
+  });
+
+  zone.addEventListener("drop", event => {
+    event.preventDefault();
+    zone.classList.remove("over");
+
+    const id = event.dataTransfer.getData("text/plain")
+      || draggedId;
+    const card = document.getElementById(id);
+
+    if (card) moveCard(card, zone.dataset.zone);
+  });
+});
+
+document.getElementById("check").addEventListener("click", () => {
+  let correct = 0;
+  let sorted = 0;
+
+  statements.forEach((item, index) => {
+    const card = document.getElementById("card-" + index);
+    const selected = card.querySelector("select").value;
+    const feedback = document.getElementById("feedback-" + index);
+
+    if (selected !== "pool") sorted++;
+
+    if (selected === item.answer) {
+      correct++;
+      feedback.className = "feedback correct";
+      feedback.textContent = "Correct. " + item.why;
+    } else if (selected === "pool") {
+      feedback.className = "feedback incorrect";
+      feedback.textContent =
+        "Not sorted yet. Choose a category for this statement.";
+    } else {
+      feedback.className = "feedback incorrect";
+      feedback.textContent =
+        "Not quite. The best answer is " +
+        names[item.answer] + ". " + item.why;
+    }
+  });
+
+  results.replaceChildren();
+
+  const heading = document.createElement("h2");
+  heading.textContent = "Your Results";
+
+  const summary = document.createElement("p");
+  summary.textContent =
+    "You sorted " + sorted + " of 9 statements and answered " +
+    correct + " correctly.";
+
+  const message = document.createElement("p");
+  message.textContent = correct === statements.length
+    ? "All correct! You understand the differences and similarities."
+    : "Review the feedback on each card, then try again.";
+
+  results.append(heading, summary, message);
+  results.scrollIntoView({ block: "nearest" });
+});
+
+document.getElementById("reset").addEventListener("click", () => {
+  statements.forEach((_, index) => {
+    const card = document.getElementById("card-" + index);
+    moveCard(card, "pool");
+  });
+
+  results.replaceChildren();
+
+  document.querySelectorAll(".feedback").forEach(feedback => {
+    feedback.textContent = "";
+    feedback.className = "";
+  });
+
+  pool.scrollIntoView({ block: "start" });
+});
+
+createCards();
+</script>
+</body>
+</html>
