@@ -1,0 +1,373 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Academic vs. Professional Writing Practice</title>
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.5;
+    color: #172b42;
+    background: #fff;
+    margin: 0;
+    padding: 20px;
+  }
+
+  main { max-width: 850px; margin: auto; }
+
+  h1 { font-size: 1.5rem; margin-bottom: 8px; }
+  h2 { font-size: 1.15rem; }
+
+  .intro { margin-bottom: 20px; }
+
+  .categories {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .category {
+    padding: 14px;
+    border: 2px solid #c5d4e4;
+    border-radius: 8px;
+    background: #f4f7fb;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  .category small {
+    display: block;
+    font-weight: normal;
+    margin-top: 5px;
+  }
+
+  .question {
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 12px 0;
+  }
+
+  .question p { margin-top: 0; }
+
+  fieldset {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    min-width: 0;
+  }
+
+  legend {
+    font-weight: bold;
+    padding: 0;
+    margin-bottom: 10px;
+  }
+
+  .choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 2px solid #b8c8d9;
+    border-radius: 6px;
+    padding: 8px 10px;
+    cursor: pointer;
+  }
+
+  label:has(input:checked) {
+    border-color: #174c87;
+    background: #e6f0ff;
+  }
+
+  input { accent-color: #174c87; }
+
+  input:focus-visible {
+    outline: 3px solid #b45309;
+    outline-offset: 3px;
+  }
+
+  .feedback {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 5px;
+  }
+
+  .correct {
+    background: #e9f5ed;
+    border-left: 4px solid #237544;
+  }
+
+  .incorrect {
+    background: #fff2e4;
+    border-left: 4px solid #a65b08;
+  }
+
+  button {
+    padding: 12px 18px;
+    border: 0;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin: 8px 8px 8px 0;
+  }
+
+  button:focus-visible {
+    outline: 3px solid #b45309;
+    outline-offset: 3px;
+  }
+
+  #check { background: #174c87; color: white; }
+  #reset { background: #e8edf3; color: #172b42; }
+
+  #result {
+    margin-top: 15px;
+    padding: 15px;
+    border: 2px solid #174c87;
+    border-radius: 8px;
+  }
+
+  #result:empty { display: none; }
+
+  .note { font-size: .9rem; color: #435367; }
+
+  @media (max-width: 600px) {
+    .categories { grid-template-columns: 1fr; }
+    .choices { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>Academic or Professional Writing?</h1>
+
+  <p class="intro">
+    Practice identifying writing expectations in academic and
+    professional settings. Read each statement and select the
+    category that fits best. Some practices apply to both.
+  </p>
+
+  <div class="categories" aria-label="Writing categories">
+    <div class="category">
+      Academic Writing
+      <small>College assignments and scholarly work</small>
+    </div>
+    <div class="category">
+      Professional Writing
+      <small>Workplace communication and tasks</small>
+    </div>
+    <div class="category">
+      Both
+      <small>Skills used in academic and workplace settings</small>
+    </div>
+  </div>
+
+  <h2>Sort the Statements</h2>
+
+  <p>
+    Select one answer for each statement. Then choose
+    <strong>Check Answers</strong> to receive feedback.
+    You may try again as often as you like.
+  </p>
+
+  <form id="activity">
+    <div id="questions"></div>
+
+    <button type="submit" id="check">Check Answers</button>
+    <button type="button" id="reset">Try Again</button>
+  </form>
+
+  <div id="result" role="status" aria-live="polite"></div>
+
+  <p class="note">
+    This is an ungraded practice activity. Your responses
+    are not submitted to your instructor.
+  </p>
+</main>
+
+<script>
+"use strict";
+
+const items = [
+  {
+    text: "Uses scholarly research to support arguments in a college paper.",
+    answer: "academic",
+    why: "Academic assignments often use scholarly research to support claims."
+  },
+  {
+    text: "Follows APA or MLA citation guidelines when required.",
+    answer: "academic",
+    why: "APA and MLA are common academic citation styles."
+  },
+  {
+    text: "Includes in-text citations and a reference or works cited list.",
+    answer: "academic",
+    why: "Academic writing commonly uses citations to acknowledge research."
+  },
+  {
+    text: "Sends a memo explaining a new workplace procedure.",
+    answer: "professional",
+    why: "Memos are commonly used to communicate workplace information."
+  },
+  {
+    text: "Clearly identifies an action a supervisor needs to approve.",
+    answer: "professional",
+    why: "Professional communication often supports decisions and actions."
+  },
+  {
+    text: "Follows an organization's standards for business correspondence.",
+    answer: "professional",
+    why: "Workplace writing follows organizational communication expectations."
+  },
+  {
+    text: "Uses clear, organized sentences to communicate ideas.",
+    answer: "both",
+    why: "Clarity and organization are important in both settings."
+  },
+  {
+    text: "Adjusts language and tone to suit the intended audience.",
+    answer: "both",
+    why: "Audience awareness matters in academic and professional writing."
+  },
+  {
+    text: "Reviews information for accuracy and corrects writing errors.",
+    answer: "both",
+    why: "Accuracy and proofreading are essential in both settings."
+  }
+];
+
+const choices = [
+  ["academic", "Academic Writing"],
+  ["professional", "Professional Writing"],
+  ["both", "Both"]
+];
+
+const container = document.getElementById("questions");
+const form = document.getElementById("activity");
+const result = document.getElementById("result");
+
+function buildActivity() {
+  container.replaceChildren();
+
+  items.forEach((item, index) => {
+    const section = document.createElement("section");
+    section.className = "question";
+
+    const fieldset = document.createElement("fieldset");
+    const legend = document.createElement("legend");
+    legend.textContent = (index + 1) + ". " + item.text;
+    fieldset.appendChild(legend);
+
+    const group = document.createElement("div");
+    group.className = "choices";
+
+    choices.forEach(([value, labelText]) => {
+      const label = document.createElement("label");
+      const input = document.createElement("input");
+
+      input.type = "radio";
+      input.name = "q" + index;
+      input.value = value;
+      input.required = true;
+
+      label.appendChild(input);
+      label.appendChild(document.createTextNode(labelText));
+      group.appendChild(label);
+    });
+
+    fieldset.appendChild(group);
+    section.appendChild(fieldset);
+
+    const feedback = document.createElement("div");
+    feedback.id = "feedback" + index;
+    feedback.setAttribute("aria-live", "polite");
+    section.appendChild(feedback);
+
+    container.appendChild(section);
+  });
+}
+
+function checkAnswers(event) {
+  event.preventDefault();
+
+  let score = 0;
+
+  items.forEach((item, index) => {
+    const selected = form.querySelector(
+      'input[name="q' + index + '"]:checked'
+    );
+
+    const feedback = document.getElementById("feedback" + index);
+    const correct = selected.value === item.answer;
+
+    if (correct) score++;
+
+    const correctLabel = choices.find(
+      choice => choice[0] === item.answer
+    )[1];
+
+    feedback.className = "feedback " +
+      (correct ? "correct" : "incorrect");
+
+    feedback.textContent = correct
+      ? "Correct. " + item.why
+      : "Not quite. The best answer is " +
+        correctLabel + ". " + item.why;
+  });
+
+  result.replaceChildren();
+
+  const heading = document.createElement("h2");
+  heading.textContent = "Your Results";
+
+  const scoreText = document.createElement("p");
+  scoreText.textContent =
+    "You answered " + score + " out of " +
+    items.length + " correctly.";
+
+  const message = document.createElement("p");
+  message.textContent = score === items.length
+    ? "All correct! You can identify the differences and similarities."
+    : "Review the feedback above, then try again to strengthen your understanding.";
+
+  result.append(heading, scoreText, message);
+  result.focus();
+}
+
+function resetActivity() {
+  form.reset();
+
+  items.forEach((_, index) => {
+    const feedback = document.getElementById("feedback" + index);
+    feedback.textContent = "";
+    feedback.className = "";
+  });
+
+  result.replaceChildren();
+
+  document.querySelector("h2").scrollIntoView({
+    behavior: "auto",
+    block: "start"
+  });
+}
+
+buildActivity();
+
+form.addEventListener("submit", checkAnswers);
+document.getElementById("reset").addEventListener(
+  "click",
+  resetActivity
+);
+</script>
+</body>
+</html>
