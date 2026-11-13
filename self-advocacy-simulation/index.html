@@ -1,1 +1,611 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Self-Advocacy Conversation Simulator</title>
+<style>
+:root {
+  --navy: #003d78;
+  --blue: #327fef;
+  --cream: #fcf2e7;
+  --pink: #f8dce5;
+  --gold: #ffc94f;
+  --ink: #172b42;
+  --pale: #edf3f9;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 12px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: var(--ink);
+  background: var(--cream);
+  font-size: 15px;
+  line-height: 1.45;
+}
+main { max-width: 960px; margin: auto; }
+h1 { color: var(--navy); font-size: 23px; margin: 0 0 5px; }
+h2 { font-size: 18px; margin: 0 0 8px; color: var(--navy); }
+p { margin: 5px 0 10px; }
+.intro { margin-bottom: 14px; }
+.scenarios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 15px;
+}
+button {
+  font: inherit;
+  cursor: pointer;
+  border-radius: 6px;
+  min-height: 42px;
+}
+.scenario-btn {
+  padding: 8px 13px;
+  background: white;
+  color: var(--navy);
+  border: 2px solid var(--navy);
+  font-weight: bold;
+}
+.scenario-btn[aria-pressed="true"] {
+  background: var(--navy);
+  color: white;
+}
+.scene {
+  background: white;
+  border: 1px solid #c7d5e5;
+  border-radius: 8px;
+  padding: 16px;
+}
+.situation {
+  background: var(--pale);
+  border-left: 4px solid var(--navy);
+  padding: 12px;
+  margin-bottom: 15px;
+}
+.progress {
+  color: var(--navy);
+  font-weight: bold;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+.dialogue {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 12px 0;
+}
+.avatar {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--navy);
+  color: white;
+  display: grid;
+  place-items: center;
+  font-weight: bold;
+}
+.bubble {
+  background: var(--pale);
+  padding: 11px 13px;
+  border-radius: 8px;
+  flex: 1;
+}
+.bubble strong {
+  display: block;
+  color: var(--navy);
+  margin-bottom: 3px;
+}
+.student .avatar { background: #8b365b; }
+.student .bubble { background: var(--pink); }
+.choices {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+.choice {
+  text-align: left;
+  padding: 11px 13px;
+  background: white;
+  border: 1px solid #9bb2c9;
+  color: var(--ink);
+}
+.choice:hover { background: var(--pale); }
+.feedback {
+  margin: 12px 0;
+  padding: 12px;
+  border-left: 4px solid var(--navy);
+  background: var(--cream);
+}
+.feedback strong { color: var(--navy); }
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 15px;
+}
+.primary {
+  background: var(--navy);
+  color: white;
+  border: 2px solid var(--navy);
+  padding: 8px 16px;
+  font-weight: bold;
+}
+.secondary {
+  background: var(--gold);
+  color: var(--navy);
+  border: 2px solid var(--navy);
+  padding: 8px 16px;
+  font-weight: bold;
+}
+button:focus-visible {
+  outline: 3px solid #a65b08;
+  outline-offset: 3px;
+}
+.hidden { display: none; }
+.note { font-size: 13px; margin-top: 12px; }
+@media(max-width:600px) {
+  body { padding: 8px; }
+  .scene { padding: 11px; }
+  .scenario-btn { flex: 1; }
+}
+</style>
+</head>
+<body>
+<main>
+<h1>Self-Advocacy Conversation Simulator</h1>
+<p class="intro">
+  Practice speaking up in academic and workplace situations.
+  Choose a scenario, respond to the conversation, and review
+  feedback about your communication choices.
+</p>
+
+<h2>Choose Your Scenario</h2>
+<div class="scenarios" id="scenarioButtons"></div>
+
+<section class="scene" aria-label="Conversation simulation">
+  <div id="situation" class="situation"></div>
+  <div id="progress" class="progress"></div>
+  <div id="conversation" aria-live="polite"></div>
+  <div id="choices" class="choices"></div>
+  <div id="feedback" class="feedback hidden" role="status"></div>
+
+  <div class="actions">
+    <button id="continueBtn" class="primary hidden"
+      type="button">Continue Conversation</button>
+    <button id="restartBtn" class="secondary"
+      type="button">Start Over</button>
+  </div>
+</section>
+
+<p class="note">
+  This activity is ungraded. No responses are saved or submitted.
+  You may practice as many times as you like.
+</p>
+</main>
+
+<script>
+"use strict";
+
+const scenarios = [
+  {
+    name: "Transfer Advisor",
+    role: "Advisor",
+    situation: "You are preparing to transfer but are unsure whether two SoLAcc courses will count toward your new degree.",
+    turns: [
+      {
+        prompt: "Hello! What can I help you with today?",
+        choices: [
+          {
+            text: "Could you help me confirm whether my two courses meet the program requirements?",
+            reply: "Of course. Do you have the course names or numbers?",
+            good: true,
+            feedback: "You identified your concern and made a clear, respectful request."
+          },
+          {
+            text: "I need someone to tell me what to do.",
+            reply: "I can help. Which program are you planning to enter?",
+            good: false,
+            feedback: "Try identifying the specific information you need."
+          },
+          {
+            text: "I'm worried none of my credits will count.",
+            reply: "Let's review the courses you're concerned about.",
+            good: false,
+            feedback: "Expressing concern is understandable, but a specific question is more effective."
+          }
+        ]
+      },
+      {
+        prompt: "Which program are you planning to enter?",
+        choices: [
+          {
+            text: "I'm planning to enter the bachelor's program in my field. I have the course numbers available.",
+            reply: "That's helpful. We can compare those courses with the program requirements.",
+            good: true,
+            feedback: "Providing relevant details helps the advisor assist you."
+          },
+          {
+            text: "I'm not sure. Can you just check everything?",
+            reply: "Let's begin by identifying your intended major.",
+            good: false,
+            feedback: "A clear goal or a specific question makes advising more productive."
+          },
+          {
+            text: "I don't know why this has to be so complicated.",
+            reply: "I understand. Let's focus on the information we need.",
+            good: false,
+            feedback: "You can express frustration while keeping your request focused."
+          }
+        ]
+      },
+      {
+        prompt: "We can review the requirements together. What would you like to do next?",
+        choices: [
+          {
+            text: "Could you explain how I can get written confirmation of which credits will apply?",
+            reply: "Yes. I'll explain the evaluation process and who can confirm your credits.",
+            good: true,
+            feedback: "You requested a clear next step and took responsibility for following through."
+          },
+          {
+            text: "Okay, I guess that's everything.",
+            reply: "Let me know if you need anything else.",
+            good: false,
+            feedback: "Before ending, confirm that you understand the next step."
+          },
+          {
+            text: "I'll just assume the credits will transfer.",
+            reply: "I recommend getting confirmation before making that assumption.",
+            good: false,
+            feedback: "Following up helps prevent misunderstandings."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    name: "Professor",
+    role: "Professor",
+    situation: "You reviewed an assignment but need clarification about one requirement.",
+    turns: [
+      {
+        prompt: "Hello. What question do you have about the assignment?",
+        choices: [
+          {
+            text: "Could you clarify whether the assignment requires two examples or three?",
+            reply: "You need two examples related to your topic.",
+            good: true,
+            feedback: "You asked a specific question that is easy to answer."
+          },
+          {
+            text: "I don't understand this assignment.",
+            reply: "Which part is unclear?",
+            good: false,
+            feedback: "Identify the specific requirement you need clarified."
+          },
+          {
+            text: "Can you explain everything again?",
+            reply: "What have you reviewed so far?",
+            good: false,
+            feedback: "Showing what you've already reviewed helps focus the conversation."
+          }
+        ]
+      },
+      {
+        prompt: "Have you reviewed the assignment instructions and rubric?",
+        choices: [
+          {
+            text: "Yes. I reviewed both, but I'm unsure how detailed each example should be.",
+            reply: "Each example should include a short explanation connecting it to your topic.",
+            good: true,
+            feedback: "You demonstrated preparation and clearly explained what you need."
+          },
+          {
+            text: "Not yet. I thought I'd ask you first.",
+            reply: "Please review them, then let me know what questions remain.",
+            good: false,
+            feedback: "Review available resources before requesting clarification."
+          },
+          {
+            text: "The instructions are too long.",
+            reply: "Let's identify the section that's giving you trouble.",
+            good: false,
+            feedback: "A focused question is more useful than a general complaint."
+          }
+        ]
+      },
+      {
+        prompt: "Does that explanation help?",
+        choices: [
+          {
+            text: "Yes, thank you. I'll include two examples and explain how each relates to my topic.",
+            reply: "That sounds like the correct approach.",
+            good: true,
+            feedback: "You confirmed your understanding and closed the conversation professionally."
+          },
+          {
+            text: "I guess so.",
+            reply: "Let me know if you need further clarification.",
+            good: false,
+            feedback: "Summarizing your understanding helps prevent confusion."
+          },
+          {
+            text: "I'll just submit something.",
+            reply: "Please make sure your submission follows the requirements.",
+            good: false,
+            feedback: "Take time to confirm expectations before submitting."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    name: "Workplace Supervisor",
+    role: "Supervisor",
+    situation: "Your supervisor asks you to prepare a report, but you need additional details to complete it correctly.",
+    turns: [
+      {
+        prompt: "Can you prepare the report for our next meeting?",
+        choices: [
+          {
+            text: "Absolutely. Could you confirm the deadline and preferred format?",
+            reply: "Please use the standard template and send it by Thursday at noon.",
+            good: true,
+            feedback: "You accepted the task and requested the information needed to complete it."
+          },
+          {
+            text: "Sure, I'll figure it out.",
+            reply: "Thanks. Let me know if you have questions.",
+            good: false,
+            feedback: "Clarifying expectations early can prevent mistakes."
+          },
+          {
+            text: "You didn't tell me enough.",
+            reply: "What information do you need?",
+            good: false,
+            feedback: "Make your request specific and professional."
+          }
+        ]
+      },
+      {
+        prompt: "You'll need to include the latest project results.",
+        choices: [
+          {
+            text: "Where can I access the most recent results so I can use accurate information?",
+            reply: "They're in the shared project folder.",
+            good: true,
+            feedback: "You asked for a resource needed to complete the work accurately."
+          },
+          {
+            text: "I'll use whatever numbers I can find.",
+            reply: "Please make sure they're the current results.",
+            good: false,
+            feedback: "Confirm your sources rather than guessing."
+          },
+          {
+            text: "Someone else should get those numbers.",
+            reply: "Let's clarify who's responsible for collecting them.",
+            good: false,
+            feedback: "Ask for support without avoiding responsibility for the task."
+          }
+        ]
+      },
+      {
+        prompt: "Is there anything else you need before getting started?",
+        choices: [
+          {
+            text: "No, thank you. I'll use the standard template, verify the results, and submit it by Thursday at noon.",
+            reply: "Perfect. I appreciate the confirmation.",
+            good: true,
+            feedback: "You summarized the expectations and demonstrated accountability."
+          },
+          {
+            text: "Nope.",
+            reply: "Okay. I'll look for your report.",
+            good: false,
+            feedback: "A brief summary of the agreed expectations provides useful confirmation."
+          },
+          {
+            text: "I'll try to get it done.",
+            reply: "Please let me know immediately if you anticipate a delay.",
+            good: false,
+            feedback: "Communicate clearly about commitments and potential obstacles."
+          }
+        ]
+      }
+    ]
+  }
+];
+
+let currentScenario = 0;
+let currentTurn = 0;
+let selectedChoice = null;
+let score = 0;
+
+const scenarioButtons =
+  document.getElementById("scenarioButtons");
+const situation = document.getElementById("situation");
+const progress = document.getElementById("progress");
+const conversation = document.getElementById("conversation");
+const choices = document.getElementById("choices");
+const feedback = document.getElementById("feedback");
+const continueBtn = document.getElementById("continueBtn");
+const restartBtn = document.getElementById("restartBtn");
+
+function addMessage(role, message, student = false) {
+  const row = document.createElement("div");
+  row.className = "dialogue" + (student ? " student" : "");
+
+  const avatar = document.createElement("div");
+  avatar.className = "avatar";
+  avatar.setAttribute("aria-hidden", "true");
+  avatar.textContent = student ? "You" : role.charAt(0);
+
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+
+  const label = document.createElement("strong");
+  label.textContent = student ? "You" : role;
+
+  const text = document.createElement("span");
+  text.textContent = message;
+
+  bubble.append(label, text);
+  row.append(avatar, bubble);
+  conversation.appendChild(row);
+}
+
+function renderScenarioButtons() {
+  scenarioButtons.replaceChildren();
+
+  scenarios.forEach((scenario, index) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "scenario-btn";
+    button.textContent = scenario.name;
+    button.setAttribute(
+      "aria-pressed",
+      String(index === currentScenario)
+    );
+
+    button.addEventListener("click", () => {
+      currentScenario = index;
+      restart();
+    });
+
+    scenarioButtons.appendChild(button);
+  });
+}
+
+function renderTurn() {
+  const scenario = scenarios[currentScenario];
+  const turn = scenario.turns[currentTurn];
+
+  situation.textContent = scenario.situation;
+  progress.textContent =
+    "Conversation " + (currentTurn + 1) +
+    " of " + scenario.turns.length;
+
+  conversation.replaceChildren();
+  choices.replaceChildren();
+
+  feedback.classList.add("hidden");
+  feedback.textContent = "";
+  continueBtn.classList.add("hidden");
+
+  addMessage(scenario.role, turn.prompt);
+
+  turn.choices.forEach((choice, index) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "choice";
+    button.textContent = choice.text;
+
+    button.addEventListener("click", () => {
+      selectResponse(index);
+    });
+
+    choices.appendChild(button);
+  });
+}
+
+function selectResponse(index) {
+  const scenario = scenarios[currentScenario];
+  const turn = scenario.turns[currentTurn];
+  const choice = turn.choices[index];
+
+  selectedChoice = choice;
+  if (choice.good) score++;
+
+  choices.replaceChildren();
+
+  addMessage("You", choice.text, true);
+  addMessage(scenario.role, choice.reply);
+
+  feedback.replaceChildren();
+
+  const heading = document.createElement("strong");
+  heading.textContent = choice.good
+    ? "Effective communication"
+    : "Consider another approach";
+
+  const text = document.createElement("p");
+  text.textContent = choice.feedback;
+
+  feedback.append(heading, text);
+  feedback.classList.remove("hidden");
+
+  continueBtn.textContent =
+    currentTurn === scenario.turns.length - 1
+    ? "View Feedback"
+    : "Continue Conversation";
+
+  continueBtn.classList.remove("hidden");
+  continueBtn.focus();
+}
+
+function showResults() {
+  const total = scenarios[currentScenario].turns.length;
+
+  progress.textContent = "Conversation Complete";
+  conversation.replaceChildren();
+  choices.replaceChildren();
+  feedback.classList.add("hidden");
+  continueBtn.classList.add("hidden");
+
+  const heading = document.createElement("h2");
+  heading.textContent = "Your Self-Advocacy Feedback";
+
+  const summary = document.createElement("p");
+  summary.textContent =
+    "You selected " + score + " of " + total +
+    " effective responses.";
+
+  const message = document.createElement("p");
+
+  if (score === total) {
+    message.textContent =
+      "You consistently communicated clearly, made specific requests, and demonstrated professional confidence.";
+  } else if (score >= 2) {
+    message.textContent =
+      "You demonstrated several effective self-advocacy skills. Practice making your requests more specific and confirming next steps.";
+  } else {
+    message.textContent =
+      "Self-advocacy improves with practice. Focus on identifying your needs, asking clear questions, and following up respectfully.";
+  }
+
+  conversation.append(heading, summary, message);
+
+  continueBtn.classList.add("hidden");
+}
+
+function restart() {
+  currentTurn = 0;
+  selectedChoice = null;
+  score = 0;
+
+  renderScenarioButtons();
+  renderTurn();
+}
+
+continueBtn.addEventListener("click", () => {
+  const scenario = scenarios[currentScenario];
+
+  if (currentTurn < scenario.turns.length - 1) {
+    currentTurn++;
+    renderTurn();
+  } else {
+    showResults();
+  }
+});
+
+restartBtn.addEventListener("click", restart);
+
+restart();
+</script>
+</body>
+</html>
