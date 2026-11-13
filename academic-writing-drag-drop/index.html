@@ -4,9 +4,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Academic vs. Professional Writing: Drag and Drop</title>
+<title>Academic vs. Professional Writing: Sorting Activity</title>
 <style>
 * { box-sizing: border-box; }
+
 body {
   margin: 0;
   padding: 20px;
@@ -15,91 +16,130 @@ body {
   color: #172b42;
   background: #fff;
 }
-main { max-width: 1050px; margin: auto; }
-h1 { font-size: 1.6rem; }
-h2 { font-size: 1.15rem; margin-top: 24px; }
-p { max-width: 850px; }
+
+main { max-width: 1150px; margin: auto; }
+h1 { font-size: 1.65rem; margin-bottom: 10px; }
+h2 { font-size: 1.15rem; margin: 0 0 12px; }
+p { margin: 8px 0 14px; }
+
+.instructions { max-width: 950px; margin-bottom: 22px; }
 
 .board {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin: 20px 0;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: 18px;
+  align-items: start;
 }
+
+.pool-panel {
+  padding: 16px;
+  background: #f5f8fc;
+  border: 1px solid #bdcde0;
+  border-radius: 9px;
+}
+
+.card-list {
+  display: grid;
+  gap: 9px;
+  min-height: 65px;
+  align-content: start;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #9bb3cd;
+  border-radius: 7px;
+  padding: 11px;
+}
+
+.card[draggable="true"] { cursor: grab; }
+.card.dragging { opacity: .45; }
+
+.card-top {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.card-text {
+  flex: 1;
+  font-size: .94rem;
+}
+
+.move-button {
+  flex-shrink: 0;
+  background: #e8eff8;
+  border: 1px solid #819bb9;
+  color: #172b42;
+  border-radius: 5px;
+  padding: 5px 9px;
+  font-size: .82rem;
+  cursor: pointer;
+}
+
+.move-menu {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid #bdcde0;
+  border-radius: 6px;
+  background: #f8fafc;
+}
+
+.move-menu p { font-size: .85rem; margin: 0 0 8px; }
+
+.move-menu button {
+  margin: 3px;
+  padding: 7px;
+  background: white;
+  color: #172b42;
+  border: 1px solid #819bb9;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.zones { display: grid; gap: 12px; }
+
 .zone {
-  min-height: 180px;
-  padding: 12px;
+  padding: 14px;
+  min-height: 150px;
   border: 2px dashed #819bb9;
   border-radius: 9px;
   background: #f5f8fc;
 }
+
 .zone.over {
+  background: #e5f0ff;
   border-color: #174c87;
-  background: #e6f0ff;
 }
-.zone h2 {
-  margin: 0;
-  font-size: 1.05rem;
+
+.zone h2 { margin-bottom: 3px; }
+.zone-description {
+  color: #435367;
+  font-size: .88rem;
+  margin-bottom: 12px;
 }
-.zone p {
-  font-size: .85rem;
-  margin: 5px 0 12px;
-}
-.card-list { min-height: 65px; }
-.pool {
-  padding: 14px;
-  border: 2px solid #cbd5e1;
-  border-radius: 9px;
-  background: #f8fafc;
-}
-.cards {
-  display: grid;
-  gap: 10px;
-}
-.card {
-  padding: 12px;
-  background: #fff;
-  border: 1px solid #aabdd2;
-  border-radius: 7px;
-}
-.card[draggable="true"] { cursor: grab; }
-.card.dragging { opacity: .45; }
-.card strong { display: block; margin-bottom: 8px; }
-.card label {
-  display: block;
-  font-size: .85rem;
-  margin-bottom: 4px;
-}
-.card select {
-  width: 100%;
-  max-width: 260px;
-  padding: 8px;
-  font-size: 1rem;
-  color: #172b42;
-  background: white;
-  border: 1px solid #819bb9;
-  border-radius: 5px;
-}
-.card select:focus-visible,
-button:focus-visible {
-  outline: 3px solid #a65b08;
-  outline-offset: 3px;
-}
+
 .feedback {
   margin-top: 9px;
   padding: 9px;
+  font-size: .9rem;
   border-radius: 5px;
 }
+
 .correct {
   background: #e7f4eb;
   border-left: 4px solid #237544;
 }
+
 .incorrect {
   background: #fff1e2;
   border-left: 4px solid #a65b08;
 }
-.actions { margin: 20px 0; }
-button {
+
+.actions { margin: 22px 0 15px; }
+
+.action-button {
   padding: 12px 18px;
   border: 0;
   border-radius: 6px;
@@ -108,17 +148,30 @@ button {
   cursor: pointer;
   margin: 0 8px 8px 0;
 }
-#check { background: #174c87; color: #fff; }
+
+#check { background: #174c87; color: white; }
 #reset { background: #e8edf3; color: #172b42; }
+
 #results {
   padding: 15px;
   border: 2px solid #174c87;
   border-radius: 8px;
 }
-#results:empty { display: none; }
-.note { font-size: .9rem; color: #435367; }
 
-@media (max-width: 700px) {
+#results:empty { display: none; }
+
+.note {
+  margin-top: 18px;
+  font-size: .88rem;
+  color: #435367;
+}
+
+button:focus-visible {
+  outline: 3px solid #a65b08;
+  outline-offset: 3px;
+}
+
+@media (max-width: 750px) {
   .board { grid-template-columns: 1fr; }
 }
 </style>
@@ -128,61 +181,83 @@ button {
 <main>
 <h1>Academic or Professional Writing?</h1>
 
-<p>
-Sort the nine statements into <strong>Academic Writing</strong>,
-<strong>Professional Writing</strong>, or <strong>Both</strong>.
-Drag each card into a category, or use its dropdown menu.
-</p>
+<div class="instructions">
+  <p>
+    Practice identifying writing expectations in academic and
+    professional settings. Sort each statement into
+    <strong>Academic Writing</strong>,
+    <strong>Professional Writing</strong>, or
+    <strong>Both</strong>.
+  </p>
 
-<p>
-When you finish, select <strong>Check Answers</strong> to receive
-feedback. You can try again as often as you like.
-</p>
+  <p>
+    Drag statements from the list into the correct category.
+    You can also select <strong>Move</strong> on any statement
+    to choose its destination without dragging.
+    Select <strong>Check Answers</strong> for feedback.
+    You may try again as often as you like.
+  </p>
+</div>
 
-<section aria-labelledby="unsorted-heading" class="pool">
-  <h2 id="unsorted-heading">Statements to Sort</h2>
-  <div id="pool" class="cards card-list"
-       data-zone="pool"
-       aria-label="Unsorted statements"></div>
-</section>
+<div class="board">
 
-<div class="board" aria-label="Sorting categories">
-  <section class="zone" data-zone="academic"
-           aria-labelledby="academic-heading">
-    <h2 id="academic-heading">Academic Writing</h2>
-    <p>College assignments and scholarly work</p>
-    <div id="academic" class="cards card-list"
-         data-zone="academic"></div>
+  <section class="pool-panel" aria-labelledby="pool-heading">
+    <h2 id="pool-heading">Statements to Sort</h2>
+    <div id="pool" class="card-list" data-zone="pool"
+         aria-label="Unsorted statements"></div>
   </section>
 
-  <section class="zone" data-zone="professional"
-           aria-labelledby="professional-heading">
-    <h2 id="professional-heading">Professional Writing</h2>
-    <p>Workplace communication and tasks</p>
-    <div id="professional" class="cards card-list"
-         data-zone="professional"></div>
-  </section>
+  <div class="zones" aria-label="Writing categories">
 
-  <section class="zone" data-zone="both"
-           aria-labelledby="both-heading">
-    <h2 id="both-heading">Both</h2>
-    <p>Skills used in academic and workplace settings</p>
-    <div id="both" class="cards card-list"
-         data-zone="both"></div>
-  </section>
+    <section class="zone" data-zone="academic"
+             aria-labelledby="academic-heading">
+      <h2 id="academic-heading">Academic Writing</h2>
+      <p class="zone-description">
+        College assignments and scholarly work
+      </p>
+      <div id="academic" class="card-list"
+           data-zone="academic"></div>
+    </section>
+
+    <section class="zone" data-zone="professional"
+             aria-labelledby="professional-heading">
+      <h2 id="professional-heading">Professional Writing</h2>
+      <p class="zone-description">
+        Workplace communication and tasks
+      </p>
+      <div id="professional" class="card-list"
+           data-zone="professional"></div>
+    </section>
+
+    <section class="zone" data-zone="both"
+             aria-labelledby="both-heading">
+      <h2 id="both-heading">Both</h2>
+      <p class="zone-description">
+        Skills used in academic and workplace settings
+      </p>
+      <div id="both" class="card-list"
+           data-zone="both"></div>
+    </section>
+
+  </div>
 </div>
 
 <div class="actions">
-  <button type="button" id="check">Check Answers</button>
-  <button type="button" id="reset">Try Again</button>
+  <button type="button" class="action-button" id="check">
+    Check Answers
+  </button>
+  <button type="button" class="action-button" id="reset">
+    Try Again
+  </button>
 </div>
 
 <div id="results" role="status" aria-live="polite"></div>
 
 <p class="note">
-This activity is ungraded. Your answers are not submitted
-to your instructor or stored online.
+  This activity is ungraded. Your answers are not submitted
+  to your instructor or stored online.
 </p>
+
 </main>
 
 <script>
@@ -240,12 +315,33 @@ const names = {
   academic: "Academic Writing",
   professional: "Professional Writing",
   both: "Both",
-  pool: "Not sorted"
+  pool: "Statements to Sort"
 };
 
 const pool = document.getElementById("pool");
 const results = document.getElementById("results");
 let draggedId = null;
+
+function clearFeedback(card) {
+  const feedback = card.querySelector(".feedback");
+  feedback.textContent = "";
+  feedback.className = "feedback";
+  results.replaceChildren();
+}
+
+function moveCard(card, destinationName) {
+  const destination = document.getElementById(destinationName);
+  if (!destination) return;
+
+  destination.appendChild(card);
+  clearFeedback(card);
+
+  const menu = card.querySelector(".move-menu");
+  menu.hidden = true;
+
+  const button = card.querySelector(".move-button");
+  button.setAttribute("aria-expanded", "false");
+}
 
 function createCards() {
   statements.forEach((item, index) => {
@@ -254,36 +350,62 @@ function createCards() {
     card.id = "card-" + index;
     card.draggable = true;
 
-    const text = document.createElement("strong");
+    const top = document.createElement("div");
+    top.className = "card-top";
+
+    const text = document.createElement("span");
+    text.className = "card-text";
     text.textContent = (index + 1) + ". " + item.text;
-    card.appendChild(text);
 
-    const label = document.createElement("label");
-    label.htmlFor = "select-" + index;
-    label.textContent = "Choose a category:";
-    card.appendChild(label);
+    const moveButton = document.createElement("button");
+    moveButton.type = "button";
+    moveButton.className = "move-button";
+    moveButton.textContent = "Move";
+    moveButton.setAttribute("aria-expanded", "false");
+    moveButton.setAttribute(
+      "aria-label",
+      "Move statement " + (index + 1)
+    );
 
-    const select = document.createElement("select");
-    select.id = "select-" + index;
+    top.append(text, moveButton);
+    card.appendChild(top);
 
-    Object.entries(names).forEach(([value, name]) => {
-      const option = document.createElement("option");
-      option.value = value;
-      option.textContent = name;
-      select.appendChild(option);
+    const menu = document.createElement("div");
+    menu.className = "move-menu";
+    menu.hidden = true;
+
+    const menuPrompt = document.createElement("p");
+    menuPrompt.textContent = "Move this statement to:";
+    menu.appendChild(menuPrompt);
+
+    Object.entries(names).forEach(([key, label]) => {
+      const option = document.createElement("button");
+      option.type = "button";
+      option.textContent = label;
+
+      option.addEventListener("click", () => {
+        moveCard(card, key);
+        moveButton.focus();
+      });
+
+      menu.appendChild(option);
     });
 
-    select.value = "pool";
-
-    select.addEventListener("change", () => {
-      moveCard(card, select.value);
+    moveButton.addEventListener("click", () => {
+      menu.hidden = !menu.hidden;
+      moveButton.setAttribute(
+        "aria-expanded",
+        String(!menu.hidden)
+      );
+      if (!menu.hidden) {
+        menu.querySelector("button").focus();
+      }
     });
 
-    card.appendChild(select);
+    card.appendChild(menu);
 
     const feedback = document.createElement("div");
-    feedback.id = "feedback-" + index;
-    feedback.setAttribute("aria-live", "polite");
+    feedback.className = "feedback";
     card.appendChild(feedback);
 
     card.addEventListener("dragstart", event => {
@@ -303,20 +425,6 @@ function createCards() {
 
     pool.appendChild(card);
   });
-}
-
-function moveCard(card, zoneName) {
-  const destination = document.getElementById(zoneName);
-  if (!destination) return;
-
-  destination.appendChild(card);
-  card.querySelector("select").value = zoneName;
-
-  const feedback = card.querySelector("[id^='feedback-']");
-  feedback.textContent = "";
-  feedback.className = "";
-
-  results.replaceChildren();
 }
 
 document.querySelectorAll("[data-zone]").forEach(zone => {
@@ -350,8 +458,8 @@ document.getElementById("check").addEventListener("click", () => {
 
   statements.forEach((item, index) => {
     const card = document.getElementById("card-" + index);
-    const selected = card.querySelector("select").value;
-    const feedback = document.getElementById("feedback-" + index);
+    const selected = card.parentElement.id;
+    const feedback = card.querySelector(".feedback");
 
     if (selected !== "pool") sorted++;
 
@@ -362,7 +470,7 @@ document.getElementById("check").addEventListener("click", () => {
     } else if (selected === "pool") {
       feedback.className = "feedback incorrect";
       feedback.textContent =
-        "Not sorted yet. Choose a category for this statement.";
+        "Not sorted yet. Move this statement into a category.";
     } else {
       feedback.className = "feedback incorrect";
       feedback.textContent =
@@ -397,12 +505,6 @@ document.getElementById("reset").addEventListener("click", () => {
   });
 
   results.replaceChildren();
-
-  document.querySelectorAll(".feedback").forEach(feedback => {
-    feedback.textContent = "";
-    feedback.className = "";
-  });
-
   pool.scrollIntoView({ block: "start" });
 });
 
